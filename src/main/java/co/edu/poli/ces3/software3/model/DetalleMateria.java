@@ -1,4 +1,4 @@
-package co.edu.poli.ces3.software3.dbo;
+package co.edu.poli.ces3.software3.model;
 
 public class DetalleMateria {
 
@@ -6,6 +6,8 @@ public class DetalleMateria {
     private int creditos;
     private String docente;
     private String estado;
+
+    public DetalleMateria() {}
 
     public DetalleMateria(String nombre, int creditos, String docente, String estado) {
         this.nombre = nombre;

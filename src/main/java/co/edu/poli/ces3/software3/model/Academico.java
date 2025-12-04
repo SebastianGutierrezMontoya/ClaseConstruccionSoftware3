@@ -1,22 +1,27 @@
-package co.edu.poli.ces3.software3.dbo;
+package co.edu.poli.ces3.software3.model;
 
 import java.util.List;
 
 public class Academico {
 
+
+    private int id;
     private String programa;
     private int semestreActual;
     private double promedioAcumulado;
-    private List<String> materiasInscritas;
-    private List<DetalleMateria> detalleMaterias;
+    private int StudentId;
 
-    public Academico(String programa, int semestreActual, double promedioAcumulado,
-                     List<String> materiasInscritas, List<DetalleMateria> detalleMaterias) {
+    public Academico() {
+
+    }
+
+    public Academico(int id, String programa, int semestreActual, double promedioAcumulado) {
+
+        this.id = id;
         this.programa = programa;
         this.semestreActual = semestreActual;
         this.promedioAcumulado = promedioAcumulado;
-        this.materiasInscritas = materiasInscritas;
-        this.detalleMaterias = detalleMaterias;
+
     }
 
     public String getPrograma() {
@@ -43,19 +48,19 @@ public class Academico {
         this.promedioAcumulado = promedioAcumulado;
     }
 
-    public List<String> getMateriasInscritas() {
-        return materiasInscritas;
+    public int getId() {
+        return id;
     }
 
-    public void setMateriasInscritas(List<String> materiasInscritas) {
-        this.materiasInscritas = materiasInscritas;
+    public void setId(int id) {
+        this.id = id;
     }
 
-    public List<DetalleMateria> getDetalleMaterias() {
-        return detalleMaterias;
+    public int getStudentId() {
+        return StudentId;
     }
 
-    public void setDetalleMaterias(List<DetalleMateria> detalleMaterias) {
-        this.detalleMaterias = detalleMaterias;
+    public void setStudentId(int studentId) {
+        StudentId = studentId;
     }
 }

@@ -6,8 +6,6 @@ import jakarta.servlet.annotation.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
-import co.edu.poli.ces3.software3.dbo.Student;
-
 @WebServlet(name = "helloServlet", value = "/hello-servlet")
 public class HelloServlet extends HttpServlet {
     private String message;

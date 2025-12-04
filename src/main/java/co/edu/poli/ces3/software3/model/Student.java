@@ -1,9 +1,8 @@
-package co.edu.poli.ces3.software3.dbo;
-import co.edu.poli.ces3.software3.dbo.Academico;
-import java.util.List;
+package co.edu.poli.ces3.software3.model;
 
 public class Student {
 
+    private int id;
     private String nombreCompleto;
     private int edad;
     private String correo;
@@ -13,8 +12,11 @@ public class Student {
     private Academico academico;
     private Preferencias preferencias;
 
-    public Student(String nombreCompleto, int edad, String correo, String telefono,
+    public Student() {}
+
+    public Student(int id,String nombreCompleto, int edad, String correo, String telefono,
                    String ciudadResidencia, Academico academico, Preferencias preferencias) {
+        this.id = id;
         this.nombreCompleto = nombreCompleto;
         this.edad = edad;
         this.correo = correo;
@@ -78,5 +80,13 @@ public class Student {
 
     public void setPreferencias(Preferencias preferencias) {
         this.preferencias = preferencias;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 }
