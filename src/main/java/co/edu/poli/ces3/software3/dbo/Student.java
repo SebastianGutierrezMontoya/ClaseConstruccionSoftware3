@@ -1,61 +1,82 @@
 package co.edu.poli.ces3.software3.dbo;
-import java.time.LocalDate;
+import co.edu.poli.ces3.software3.dbo.Academico;
+import java.util.List;
 
 public class Student {
 
-    private String name;
-    private String lastname;
-    private LocalDate birthDate;
-    private String email;
+    private String nombreCompleto;
+    private int edad;
+    private String correo;
+    private String telefono;
+    private String ciudadResidencia;
 
+    private Academico academico;
+    private Preferencias preferencias;
 
-
-    Student() {
-
+    public Student(String nombreCompleto, int edad, String correo, String telefono,
+                   String ciudadResidencia, Academico academico, Preferencias preferencias) {
+        this.nombreCompleto = nombreCompleto;
+        this.edad = edad;
+        this.correo = correo;
+        this.telefono = telefono;
+        this.ciudadResidencia = ciudadResidencia;
+        this.academico = academico;
+        this.preferencias = preferencias;
     }
 
-
-    public Student(String name, String lastname, LocalDate birthDate, String email) {
-        this.name = name;
-        this.lastname = lastname;
-        this.birthDate = birthDate;
-        this.email = email;
+    public String getNombreCompleto() {
+        return nombreCompleto;
     }
 
-    public String getName() {
-        return name;
+    public void setNombreCompleto(String nombreCompleto) {
+        this.nombreCompleto = nombreCompleto;
     }
 
-    public String getLastname() {
-        return lastname;
+    public int getEdad() {
+        return edad;
     }
 
-    public LocalDate getBirthDate() {
-        return birthDate;
+    public void setEdad(int edad) {
+        this.edad = edad;
     }
 
-    public String getEmail() {
-        return email;
+    public String getCorreo() {
+        return correo;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setCorreo(String correo) {
+        this.correo = correo;
     }
 
-    public void setLastname(String lastname) {
-        this.lastname = lastname;
+    public String getTelefono() {
+        return telefono;
     }
 
-    public void setBirthDate(LocalDate birthDate) {
-        this.birthDate = birthDate;
+    public void setTelefono(String telefono) {
+        this.telefono = telefono;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public String getCiudadResidencia() {
+        return ciudadResidencia;
     }
 
-    public static void main(String[] args) {
-
+    public void setCiudadResidencia(String ciudadResidencia) {
+        this.ciudadResidencia = ciudadResidencia;
     }
 
+    public Academico getAcademico() {
+        return academico;
+    }
+
+    public void setAcademico(Academico academico) {
+        this.academico = academico;
+    }
+
+    public Preferencias getPreferencias() {
+        return preferencias;
+    }
+
+    public void setPreferencias(Preferencias preferencias) {
+        this.preferencias = preferencias;
+    }
 }
