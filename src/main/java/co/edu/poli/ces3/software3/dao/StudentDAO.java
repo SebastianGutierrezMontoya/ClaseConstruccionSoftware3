@@ -10,32 +10,54 @@ import java.util.List;
 public class StudentDAO {
 
     // INSERT
-    public boolean insert(Student s) {
+    public Student insert(Student s) {
         String sql = "INSERT INTO student (nombre_completo, edad, correo, telefono, ciudad_residencia) " +
-                "VALUES (?, ?, ?, ?, ?)";
+                "VALUES (?, ?, ?, ?, ?) RETURNING id";
 
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+        try (Connection con = DatabaseConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
 
-            stmt.setString(1, s.getNombreCompleto());
-            stmt.setInt(2, s.getEdad());
-            stmt.setString(3, s.getCorreo());
-            stmt.setString(4, s.getTelefono());
-            stmt.setString(5, s.getCiudadResidencia());
+            ps.setString(1, s.getNombreCompleto());
+            ps.setInt(2, s.getEdad());
+            ps.setString(3, s.getCorreo());
+            ps.setString(4, s.getTelefono());
+            ps.setString(5, s.getCiudadResidencia());
 
-            stmt.executeUpdate();
-
-            ResultSet rs = stmt.getGeneratedKeys();
+            ResultSet rs = ps.executeQuery();
             if (rs.next()) {
-                s.setId(rs.getInt(1));
+                int newId = rs.getInt("id");
+                s.setId(newId);
+                return s;
             }
-
-            return true;
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
+        } catch (SQLException ex) {
+            ex.printStackTrace();
         }
+        return null;
+    }
+
+    // UPDATE → retorna Student actualizado o null si fallo
+    public Student update(Student s) {
+        String sql = "UPDATE student SET nombre_completo=?, edad=?, correo=?, telefono=?, ciudad_residencia=? " +
+                "WHERE id=?";
+
+        try (Connection con = DatabaseConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setString(1, s.getNombreCompleto());
+            ps.setInt(2, s.getEdad());
+            ps.setString(3, s.getCorreo());
+            ps.setString(4, s.getTelefono());
+            ps.setString(5, s.getCiudadResidencia());
+            ps.setInt(6, s.getId());
+
+            int rows = ps.executeUpdate();
+            if (rows > 0) {
+                return s;
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+        return null;
     }
 
     // SELECT BY ID
@@ -92,28 +114,6 @@ public class StudentDAO {
         return list;
     }
 
-    // UPDATE
-    public boolean update(Student s) {
-        String sql = "UPDATE student SET nombre_completo=?, edad=?, correo=?, telefono=?, ciudad_residencia=? " +
-                "WHERE id=?";
-
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-            stmt.setString(1, s.getNombreCompleto());
-            stmt.setInt(2, s.getEdad());
-            stmt.setString(3, s.getCorreo());
-            stmt.setString(4, s.getTelefono());
-            stmt.setString(5, s.getCiudadResidencia());
-            stmt.setInt(6, s.getId());
-
-            return stmt.executeUpdate() > 0;
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
 
     // DELETE
     public boolean delete(int id) {

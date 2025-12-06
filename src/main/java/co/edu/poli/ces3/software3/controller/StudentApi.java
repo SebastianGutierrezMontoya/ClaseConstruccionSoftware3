@@ -1,12 +1,16 @@
 package co.edu.poli.ces3.software3.controller;
 
 import co.edu.poli.ces3.software3.dao.StudentDAO;
+import co.edu.poli.ces3.software3.model.DetalleMateria;
 import co.edu.poli.ces3.software3.model.Student;
 import com.google.gson.*;
 
 import jakarta.servlet.http.*;
 import jakarta.servlet.annotation.*;
+
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.List;
 
 @WebServlet(name="StudentApi", value="/api/student")
@@ -37,31 +41,45 @@ public class StudentApi extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
-        String body = request.getReader().lines().reduce("", (acc, line) -> acc + line);
+        PrintWriter out = response.getWriter();
+        BufferedReader reader = request.getReader();
+        JsonObject body = gson.fromJson(reader, JsonObject.class);
+
+
         Student s = gson.fromJson(body, Student.class);
 
-        boolean ok = dao.insert(s);
+        Student inserted = dao.insert(s);
 
-        JsonObject json = new JsonObject();
-        json.addProperty("inserted", ok);
-        json.add("student", gson.toJsonTree(s));
-
-        response.getWriter().write(json.toString());
+        if (inserted == null) {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            out.println("{\"error\":\"No se pudo insertar\"}");
+        } else {
+            response.setStatus(HttpServletResponse.SC_CREATED);
+            Gson gson = new Gson();
+            out.println(gson.toJson(inserted));
+        }
     }
 
     // PUT (update)
     @Override
     protected void doPut(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
-        String body = request.getReader().lines().reduce("", (acc, line) -> acc + line);
+        PrintWriter out = response.getWriter();
+        BufferedReader reader = request.getReader();
+        JsonObject body = gson.fromJson(reader, JsonObject.class);
+
         Student s = gson.fromJson(body, Student.class);
 
-        boolean ok = dao.update(s);
+        Student inserted = dao.update(s);
 
-        JsonObject json = new JsonObject();
-        json.addProperty("updated", ok);
-
-        response.getWriter().write(json.toString());
+        if (inserted == null) {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            out.println("{\"error\":\"No se pudo insertar\"}");
+        } else {
+            response.setStatus(HttpServletResponse.SC_CREATED);
+            Gson gson = new Gson();
+            out.println(gson.toJson(inserted));
+        }
     }
 
     // DELETE (delete by id)

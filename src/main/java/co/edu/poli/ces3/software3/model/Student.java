@@ -9,6 +9,7 @@ public class Student {
     private String telefono;
     private String ciudadResidencia;
 
+
     private Academico academico;
     private Preferencias preferencias;
 

@@ -26,7 +26,7 @@ public class DetalleMateriasApi extends HttpServlet {
 
         int idAcademico = Integer.parseInt(req.getParameter("idAcademico"));
 
-        List<DetalleMateria> detalles = dao.getDetallesByAcademico(idAcademico);
+        List<DetalleMateria> detalles = dao.findById(idAcademico);
 
         resp.getWriter().print(gson.toJson(detalles));
     }
@@ -37,16 +37,23 @@ public class DetalleMateriasApi extends HttpServlet {
 
         BufferedReader reader = req.getReader();
         JsonObject body = gson.fromJson(reader, JsonObject.class);
+        PrintWriter out = resp.getWriter();
 
         int idAcademico = body.get("idAcademico").getAsInt();
         DetalleMateria materia = gson.fromJson(body.get("detalleMateria"), DetalleMateria.class);
 
-        boolean ok = dao.insertDetalle(idAcademico, materia);
+        //boolean ok = dao.insert(idAcademico, materia);
+        DetalleMateria inserted = dao.insert(idAcademico, materia);
 
-        JsonObject json = new JsonObject();
-        json.addProperty("success", ok);
+        if (inserted == null) {
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            out.println("{\"error\":\"No se pudo insertar\"}");
+        } else {
+            resp.setStatus(HttpServletResponse.SC_CREATED);
+            Gson gson = new Gson();
+            out.println(gson.toJson(inserted));
+        }
 
-        resp.getWriter().print(json.toString());
     }
 
     // PUT → actualizar detalle
@@ -55,16 +62,21 @@ public class DetalleMateriasApi extends HttpServlet {
 
         BufferedReader reader = req.getReader();
         JsonObject body = gson.fromJson(reader, JsonObject.class);
+        PrintWriter out = resp.getWriter();
 
         int idAcademico = body.get("idAcademico").getAsInt();
         DetalleMateria materia = gson.fromJson(body.get("detalleMateria"), DetalleMateria.class);
 
-        boolean ok = dao.updateDetalle(idAcademico, materia);
+        DetalleMateria inserted = dao.update(idAcademico, materia);
 
-        JsonObject json = new JsonObject();
-        json.addProperty("success", ok);
-
-        resp.getWriter().print(json.toString());
+        if (inserted == null) {
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            out.println("{\"error\":\"No se pudo insertar\"}");
+        } else {
+            resp.setStatus(HttpServletResponse.SC_CREATED);
+            Gson gson = new Gson();
+            out.println(gson.toJson(inserted));
+        }
     }
 
     // DELETE → eliminar por nombre
@@ -72,9 +84,9 @@ public class DetalleMateriasApi extends HttpServlet {
     protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws IOException {
 
         int idAcademico = Integer.parseInt(req.getParameter("idAcademico"));
-        String nombreMateria = req.getParameter("nombre");
+        int nombreMateria = Integer.parseInt(req.getParameter("id"));
 
-        boolean ok = dao.deleteDetalle(idAcademico, nombreMateria);
+        boolean ok = dao.delete(idAcademico, nombreMateria);
 
         JsonObject json = new JsonObject();
         json.addProperty("success", ok);

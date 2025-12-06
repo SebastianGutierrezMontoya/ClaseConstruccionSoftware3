@@ -10,31 +10,48 @@ import java.util.List;
 public class AcademicoDAO {
 
     // INSERT
-    public boolean insert(Academico a, int studentId) {
+    public Academico insert(int studentId, Academico a) {
         String sql = "INSERT INTO academico (student_id, programa, semestre_actual, promedio_acumulado) " +
-                "VALUES (?, ?, ?, ?)";
+                "VALUES (?, ?, ?, ?) RETURNING id";
 
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+        try (Connection con = DatabaseConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, studentId);
+            ps.setString(2, a.getPrograma());
+            ps.setInt(3, a.getSemestreActual());
+            ps.setDouble(4, a.getPromedioAcumulado());
 
-            stmt.setInt(1, studentId);
-            stmt.setString(2, a.getPrograma());
-            stmt.setInt(3, a.getSemestreActual());
-            stmt.setDouble(4, a.getPromedioAcumulado());
-
-            stmt.executeUpdate();
-
-            ResultSet rs = stmt.getGeneratedKeys();
+            ResultSet rs = ps.executeQuery();
             if (rs.next()) {
-                a.setId(rs.getInt(1));
+                a.setId(rs.getInt("id"));
+                a.setStudentId(studentId);
+                return a;
             }
-
-            return true;
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
+        } catch (SQLException ex) {
+            ex.printStackTrace();
         }
+        return null;
+    }
+
+    // UPDATE
+    public Academico update(Academico a) {
+        String sql = "UPDATE academico SET programa=?, semestre_actual=?, promedio_acumulado=? WHERE id=?";
+
+        try (Connection con = DatabaseConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, a.getPrograma());
+            ps.setInt(2, a.getSemestreActual());
+            ps.setDouble(3, a.getPromedioAcumulado());
+            ps.setInt(4, a.getId());
+
+            int rows = ps.executeUpdate();
+            if (rows > 0) {
+                return a;
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+        return null;
     }
 
     // SELECT BY ID
@@ -90,26 +107,7 @@ public class AcademicoDAO {
         return list;
     }
 
-    // UPDATE
-    public boolean update(Academico a) {
-        String sql = "UPDATE academico SET programa=?, semestre_actual=?, promedio_acumulado=? " +
-                "WHERE id=?";
 
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-            stmt.setString(1, a.getPrograma());
-            stmt.setInt(2, a.getSemestreActual());
-            stmt.setDouble(3, a.getPromedioAcumulado());
-            stmt.setInt(4, a.getId());
-
-            return stmt.executeUpdate() > 0;
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
 
     // DELETE
     public boolean delete(int id) {

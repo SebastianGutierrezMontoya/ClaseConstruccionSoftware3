@@ -25,7 +25,7 @@ public class MateriasInscritasApi extends HttpServlet {
 
         int idAcademico = Integer.parseInt(req.getParameter("idAcademico"));
 
-        List<String> materias = materiasDao.getMateriasByAcademico(idAcademico);
+        List<String> materias = materiasDao.findById(idAcademico);
 
         String jsonResponse = gson.toJson(materias);
 
@@ -44,7 +44,7 @@ public class MateriasInscritasApi extends HttpServlet {
         int idAcademico = body.get("idAcademico").getAsInt();
         String materia = body.get("materia").getAsString();
 
-        boolean ok = materiasDao.insertMateria(idAcademico, materia);
+        boolean ok = materiasDao.insert(idAcademico, materia);
 
         JsonObject json = new JsonObject();
         json.addProperty("success", ok);
@@ -62,7 +62,7 @@ public class MateriasInscritasApi extends HttpServlet {
         int idAcademico = body.get("idAcademico").getAsInt();
         List<String> materias = gson.fromJson(body.get("materias"), List.class);
 
-        boolean ok = materiasDao.updateMaterias(idAcademico, materias);
+        boolean ok = materiasDao.update(idAcademico, materias);
 
         JsonObject json = new JsonObject();
         json.addProperty("success", ok);
@@ -77,7 +77,7 @@ public class MateriasInscritasApi extends HttpServlet {
         int idAcademico = Integer.parseInt(req.getParameter("idAcademico"));
         String materia = req.getParameter("materia");
 
-        boolean ok = materiasDao.deleteMateria(idAcademico, materia);
+        boolean ok = materiasDao.delete(idAcademico, materia);
 
         JsonObject json = new JsonObject();
         json.addProperty("success", ok);

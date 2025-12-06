@@ -10,107 +10,147 @@ import java.util.List;
 
 public class PreferenciasDao {
 
-    // Obtener preferencias
-    public Preferencias getByStudent(int idStudent) {
-        String sql = "SELECT * FROM preferencias WHERE id_student = ?";
-        Preferencias pref = null;
+    private ActividadesExtracurricularesDao actividadesDao = new ActividadesExtracurricularesDao();
+    private NotificacionesDao notificacionesDao = new NotificacionesDao();
+
+    // INSERT — crea todo el árbol completo
+    public Preferencias insert(int studentId, Preferencias pref) {
+        String sql = "INSERT INTO preferencias (student_id, modalidad_estudio) VALUES (?, ?) RETURNING id";
 
         try (Connection con = DatabaseConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
-            ps.setInt(1, idStudent);
+            ps.setInt(1, studentId);
+            ps.setString(2, pref.getModalidadEstudio());
+
             ResultSet rs = ps.executeQuery();
-
             if (rs.next()) {
-                pref = new Preferencias();
+                int prefId = rs.getInt("id");
+                pref.setId(prefId);
+                pref.setStudentId(studentId);
 
-                pref.setModalidadEstudio(rs.getString("modalidad_estudio"));
-                pref.setActividadesExtracurriculares((String[]) rs.getArray("actividades_extracurriculares").getArray());
+                // Insert activities
+                if (pref.getActividadesExtracurriculares() != null) {
+                    actividadesDao.insert(prefId, pref.getActividadesExtracurriculares());
+                }
 
-                Notificaciones notif = new Notificaciones();
-                notif.setEmail(rs.getBoolean("email_notif"));
-                notif.setSms(rs.getBoolean("sms_notif"));
-                notif.setApp(rs.getBoolean("app_notif"));
+                // Insert notifications
+                if (pref.getNotificaciones() != null) {
+                    pref.getNotificaciones().setPreferenciasId(prefId);
+                    notificacionesDao.insert(pref.getNotificaciones());
+                }
 
-                pref.setNotificaciones(notif);
+                return getByStudentId(studentId); // return fully reloaded tree
             }
 
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        } catch (Exception e) { e.printStackTrace(); }
 
-        return pref;
+        return null;
     }
 
-    // Insertar preferencias
-    public boolean insert(int idStudent, Preferencias pref) {
-        String sql = """
-                INSERT INTO preferencias
-                (id_student, modalidad_estudio, actividades_extracurriculares, email_notif, sms_notif, app_notif)
-                VALUES (?, ?, ?, ?, ?, ?)
-                """;
-
-        try (Connection con = DatabaseConnection.getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
-
-            ps.setInt(1, idStudent);
-            ps.setString(2, pref.getModalidadEstudio());
-            ps.setArray(3, con.createArrayOf("TEXT", pref.getActividadesExtracurriculares()));
-            ps.setBoolean(4, pref.getNotificaciones().isEmail());
-            ps.setBoolean(5, pref.getNotificaciones().isSms());
-            ps.setBoolean(6, pref.getNotificaciones().isApp());
-
-            return ps.executeUpdate() > 0;
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return false;
-    }
-
-    // Actualizar preferencias
-    public boolean update(int idStudent, Preferencias pref) {
-        String sql = """
-                UPDATE preferencias SET
-                modalidad_estudio = ?,
-                actividades_extracurriculares = ?,
-                email_notif = ?,
-                sms_notif = ?,
-                app_notif = ?
-                WHERE id_student = ?
-                """;
+    // UPDATE — actualiza preferencias, actividades y notificaciones
+    public Preferencias update(Preferencias pref) {
+        String sql = "UPDATE preferencias SET modalidad_estudio = ? WHERE id = ?";
 
         try (Connection con = DatabaseConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setString(1, pref.getModalidadEstudio());
-            ps.setArray(2, con.createArrayOf("TEXT", pref.getActividadesExtracurriculares()));
-            ps.setBoolean(3, pref.getNotificaciones().isEmail());
-            ps.setBoolean(4, pref.getNotificaciones().isSms());
-            ps.setBoolean(5, pref.getNotificaciones().isApp());
-            ps.setInt(6, idStudent);
+            ps.setInt(2, pref.getId());
 
-            return ps.executeUpdate() > 0;
+            int rows = ps.executeUpdate();
+            if (rows > 0) {
 
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return false;
+                // Replace activities
+                actividadesDao.delete(pref.getId());
+                if (pref.getActividadesExtracurriculares() != null) {
+                    actividadesDao.insert(pref.getId(), pref.getActividadesExtracurriculares());
+                }
+
+                // Update notifications
+                if (pref.getNotificaciones() != null) {
+                    pref.getNotificaciones().setPreferenciasId(pref.getId());
+                    notificacionesDao.update(pref.getId(), pref.getNotificaciones());
+                }
+
+                return getByStudentId(pref.getStudentId());
+            }
+
+        } catch (Exception e) { e.printStackTrace(); }
+
+        return null;
     }
 
-    // Eliminar preferencias
-    public boolean delete(int idStudent) {
-        String sql = "DELETE FROM preferencias WHERE id_student = ?";
+    // GET — obtener todo el árbol
+    public Preferencias getByStudentId(int studentId) {
+        String sql = "SELECT * FROM preferencias WHERE student_id = ?";
 
         try (Connection con = DatabaseConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
-            ps.setInt(1, idStudent);
-            return ps.executeUpdate() > 0;
+            ps.setInt(1, studentId);
+
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+
+                Preferencias pref = new Preferencias();
+                pref.setId(rs.getInt("id"));
+                pref.setStudentId(studentId);
+                pref.setModalidadEstudio(rs.getString("modalidad_estudio"));
+
+                // load activities
+                pref.setActividadesExtracurriculares(
+                        actividadesDao.getByPreferenciasId(pref.getId())
+                );
+
+                // load notifications
+                pref.setNotificaciones(
+                        notificacionesDao.getByPreferenciasId(pref.getId())
+                );
+
+                return pref;
+            }
+
+        } catch (Exception e) { e.printStackTrace(); }
+
+        return null;
+    }
+
+
+    public Preferencias updateByStudentId(Preferencias pref) {
+
+        String sqlUpdate = """
+                UPDATE preferencias 
+                SET modalidad_estudio = ?
+                WHERE student_id = ?
+                RETURNING id
+                """;
+
+        try (Connection con = DatabaseConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sqlUpdate)) {
+
+            ps.setString(1, pref.getModalidadEstudio());
+            ps.setInt(2, pref.getStudentId());
+
+            ResultSet rs = ps.executeQuery();
+            if (!rs.next()) return null;
+
+            int prefId = rs.getInt("id");
+            pref.setId(prefId);
+
+            // Eliminar actividades actuales y reemplazar
+            actividadesDao.delete(prefId);
+            actividadesDao.insert(prefId, pref.getActividadesExtracurriculares());
+
+            // Actualizar notificaciones
+            notificacionesDao.update(prefId, pref.getNotificaciones());
+
+            return getByStudentId(pref.getStudentId());
 
         } catch (Exception e) {
             e.printStackTrace();
+            return null;
         }
-        return false;
     }
+
 }

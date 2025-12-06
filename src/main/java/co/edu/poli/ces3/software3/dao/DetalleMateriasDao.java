@@ -1,6 +1,7 @@
 package co.edu.poli.ces3.software3.dao;
 
 import co.edu.poli.ces3.software3.config.DatabaseConnection;
+import co.edu.poli.ces3.software3.controller.DetalleMateriasApi;
 import co.edu.poli.ces3.software3.model.DetalleMateria;
 
 import java.sql.*;
@@ -10,10 +11,10 @@ import java.util.List;
 public class DetalleMateriasDao {
 
     // Obtener lista de detalles por id_academico
-    public List<DetalleMateria> getDetallesByAcademico(int idAcademico) {
+    public List<DetalleMateria> findById(int idAcademico) {
         List<DetalleMateria> lista = new ArrayList<>();
 
-        String sql = "SELECT * FROM detalle_materias WHERE id_academico = ?";
+        String sql = "SELECT * FROM detalle_materia WHERE academico_id = ?";
 
         try (Connection con = DatabaseConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
@@ -23,6 +24,8 @@ public class DetalleMateriasDao {
 
             while (rs.next()) {
                 DetalleMateria dm = new DetalleMateria();
+                dm.setId(rs.getInt("id"));
+                dm.setAcademicoId(rs.getInt("academico_id"));
                 dm.setNombre(rs.getString("nombre"));
                 dm.setCreditos(rs.getInt("creditos"));
                 dm.setDocente(rs.getString("docente"));
@@ -38,8 +41,9 @@ public class DetalleMateriasDao {
     }
 
     // Insertar un detalle
-    public boolean insertDetalle(int idAcademico, DetalleMateria dm) {
-        String sql = "INSERT INTO detalle_materias (id_academico, nombre, creditos, docente, estado) VALUES (?, ?, ?, ?, ?)";
+    public DetalleMateria insert(int idAcademico, DetalleMateria dm) {
+        String sql = "INSERT INTO detalle_materia (academico_id, nombre, creditos, docente, estado) " +
+                "VALUES (?, ?, ?, ?, ?) RETURNING id";
 
         try (Connection con = DatabaseConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
@@ -50,18 +54,23 @@ public class DetalleMateriasDao {
             ps.setString(4, dm.getDocente());
             ps.setString(5, dm.getEstado());
 
-            return ps.executeUpdate() > 0;
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                dm.setId(rs.getInt("id"));
+                dm.setAcademicoId(idAcademico);
+                return dm;
+            }
 
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (SQLException ex) {
+            ex.printStackTrace();
         }
-
-        return false;
+        return null;
     }
 
-    // Actualizar un detalle (por nombre de materia)
-    public boolean updateDetalle(int idAcademico, DetalleMateria dm) {
-        String sql = "UPDATE detalle_materias SET creditos = ?, docente = ?, estado = ? WHERE id_academico = ? AND nombre = ?";
+    // UPDATE → retorna DetalleMateria actualizado o null
+    public DetalleMateria update(int idAcademico, DetalleMateria dm) {
+        String sql = "UPDATE detalle_materia SET creditos=?, docente=?, estado=?, nombre=? " +
+                "WHERE academico_id=? AND id=?";
 
         try (Connection con = DatabaseConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
@@ -69,27 +78,32 @@ public class DetalleMateriasDao {
             ps.setInt(1, dm.getCreditos());
             ps.setString(2, dm.getDocente());
             ps.setString(3, dm.getEstado());
-            ps.setInt(4, idAcademico);
-            ps.setString(5, dm.getNombre());
+            ps.setString(4, dm.getNombre());
+            ps.setInt(5, idAcademico);
+            ps.setInt(6, dm.getId());
 
-            return ps.executeUpdate() > 0;
 
-        } catch (Exception e) {
-            e.printStackTrace();
+            int rows = ps.executeUpdate();
+            if (rows > 0) {
+                dm.setAcademicoId(idAcademico);
+                return dm;
+            }
+
+        } catch (SQLException ex) {
+            ex.printStackTrace();
         }
-
-        return false;
+        return null;
     }
 
     // Eliminar un detalle por nombre
-    public boolean deleteDetalle(int idAcademico, String nombreMateria) {
-        String sql = "DELETE FROM detalle_materias WHERE id_academico = ? AND nombre = ?";
+    public boolean delete(int idAcademico, int id) {
+        String sql = "DELETE FROM detalle_materia WHERE academico_id = ? AND id = ?";
 
         try (Connection con = DatabaseConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setInt(1, idAcademico);
-            ps.setString(2, nombreMateria);
+            ps.setInt(2, id);
 
             return ps.executeUpdate() > 0;
 

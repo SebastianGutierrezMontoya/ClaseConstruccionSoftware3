@@ -6,8 +6,8 @@ import java.sql.DriverManager;
 public class DatabaseConnection {
 
     private static final String URL = "jdbc:postgresql://database-ces3.cfecwycg8uud.us-east-1.rds.amazonaws.com:5432/postgres";
-    private static final String USER = "Sebas";
-    private static final String PASS = "foxypro1";
+    private static final String USER = "ces3admin";
+    private static final String PASS = "qwert12345";
 
     public static Connection getConnection() {
         try {
@@ -18,4 +18,5 @@ public class DatabaseConnection {
             return null;
         }
     }
+
 }

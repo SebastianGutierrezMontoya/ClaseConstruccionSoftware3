@@ -3,11 +3,15 @@ package co.edu.poli.ces3.software3.controller;
 import co.edu.poli.ces3.software3.dao.AcademicoDAO;
 import co.edu.poli.ces3.software3.model.Academico;
 
+import co.edu.poli.ces3.software3.model.DetalleMateria;
+import co.edu.poli.ces3.software3.model.Student;
 import com.google.gson.*;
 import jakarta.servlet.http.*;
 import jakarta.servlet.annotation.*;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.List;
 
 @WebServlet(name="AcademicoApi",value="/api/academico")
@@ -38,35 +42,47 @@ public class AcademicoApi extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
-        String body = request.getReader().lines().reduce("", (acc, line) -> acc + line);
 
-        JsonObject jsonBody = JsonParser.parseString(body).getAsJsonObject();
+        BufferedReader reader = request.getReader();
+        JsonObject body = gson.fromJson(reader, JsonObject.class);
+        PrintWriter out = response.getWriter();
 
-        int studentId = jsonBody.get("studentId").getAsInt();
-        Academico a = gson.fromJson(jsonBody.get("academico"), Academico.class);
+        int studentId = body.get("studentId").getAsInt();
+        Academico a = gson.fromJson(body.get("academico"), Academico.class);
 
-        boolean ok = dao.insert(a, studentId);
 
-        JsonObject json = new JsonObject();
-        json.addProperty("inserted", ok);
-        json.add("academico", gson.toJsonTree(a));
+        Academico inserted = dao.insert(studentId, a);
 
-        response.getWriter().write(json.toString());
+        if (inserted == null) {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            out.println("{\"error\":\"No se pudo insertar\"}");
+        } else {
+            response.setStatus(HttpServletResponse.SC_CREATED);
+            Gson gson = new Gson();
+            out.println(gson.toJson(inserted));
+        }
     }
 
     // PUT (update)
     @Override
     protected void doPut(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
-        String body = request.getReader().lines().reduce("", (acc, line) -> acc + line);
+        PrintWriter out = response.getWriter();
+        BufferedReader reader = request.getReader();
+        JsonObject body = gson.fromJson(reader, JsonObject.class);
+
         Academico a = gson.fromJson(body, Academico.class);
 
-        boolean ok = dao.update(a);
+        Academico inserted = dao.update(a);
 
-        JsonObject json = new JsonObject();
-        json.addProperty("updated", ok);
-
-        response.getWriter().write(json.toString());
+        if (inserted == null) {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            out.println("{\"error\":\"No se pudo insertar\"}");
+        } else {
+            response.setStatus(HttpServletResponse.SC_CREATED);
+            Gson gson = new Gson();
+            out.println(gson.toJson(inserted));
+        }
     }
 
     // DELETE (delete by id)

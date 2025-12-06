@@ -8,10 +8,10 @@ import java.util.List;
 public class MateriasInscritasDao {
 
     // Obtener materias inscritas por id_academico
-    public List<String> getMateriasByAcademico(int idAcademico) {
+    public List<String> findById(int idAcademico) {
         List<String> materias = new ArrayList<>();
 
-        String sql = "SELECT materia FROM materias_inscritas WHERE id_academico = ?";
+        String sql = "SELECT materia FROM materias_inscritas WHERE academico_id = ?";
 
         try (Connection con = DatabaseConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
@@ -31,8 +31,8 @@ public class MateriasInscritasDao {
     }
 
     // Insertar materias
-    public boolean insertMateria(int idAcademico, String materia) {
-        String sql = "INSERT INTO materias_inscritas (id_academico, materia) VALUES (?, ?)";
+    public boolean insert(int idAcademico, String materia) {
+        String sql = "INSERT INTO materias_inscritas (academico_id, materia) VALUES (?, ?)";
 
         try (Connection con = DatabaseConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
@@ -50,9 +50,9 @@ public class MateriasInscritasDao {
     }
 
     // Actualizar materias → en este caso eliminamos todas y las volvemos a insertar
-    public boolean updateMaterias(int idAcademico, List<String> materias) {
+    public boolean update(int idAcademico, List<String> materias) {
 
-        String deleteSQL = "DELETE FROM materias_inscritas WHERE id_academico = ?";
+        String deleteSQL = "DELETE FROM materias_inscritas WHERE academico_id = ?";
 
         try (Connection con = DatabaseConnection.getConnection();
              PreparedStatement deletePS = con.prepareStatement(deleteSQL)) {
@@ -62,7 +62,7 @@ public class MateriasInscritasDao {
 
             // Insertar nuevamente
             for (String materia : materias) {
-                insertMateria(idAcademico, materia);
+                insert(idAcademico, materia);
             }
 
             return true;
@@ -75,8 +75,8 @@ public class MateriasInscritasDao {
     }
 
     // Eliminar materia individual
-    public boolean deleteMateria(int idAcademico, String materia) {
-        String sql = "DELETE FROM materias_inscritas WHERE id_academico = ? AND materia = ?";
+    public boolean delete(int idAcademico, String materia) {
+        String sql = "DELETE FROM materias_inscritas WHERE academico_id = ? AND materia = ?";
 
         try (Connection con = DatabaseConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
