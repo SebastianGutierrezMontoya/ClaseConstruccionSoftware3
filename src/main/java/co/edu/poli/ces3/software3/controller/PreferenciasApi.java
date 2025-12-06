@@ -47,7 +47,7 @@ public class PreferenciasApi extends HttpServlet {
 
         int studentId = Integer.parseInt(studentIdParam);
 
-        Preferencias p = preferenciasDAO.getByStudentId(studentId);
+        Preferencias p = preferenciasDAO.findById(studentId);
 
         if (p == null) {
             resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
@@ -152,7 +152,7 @@ public class PreferenciasApi extends HttpServlet {
             pref.setActividadesExtracurriculares(actividades);
             pref.setNotificaciones(notif);
 
-            Preferencias actualizado = preferenciasDAO.updateByStudentId(pref);
+            Preferencias actualizado = preferenciasDAO.update(pref);
 
             if (actualizado == null) {
                 resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);

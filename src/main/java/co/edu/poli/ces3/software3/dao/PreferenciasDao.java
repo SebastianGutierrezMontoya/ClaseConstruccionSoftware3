@@ -1,12 +1,9 @@
 package co.edu.poli.ces3.software3.dao;
 
 import co.edu.poli.ces3.software3.config.DatabaseConnection;
-import co.edu.poli.ces3.software3.model.Notificaciones;
 import co.edu.poli.ces3.software3.model.Preferencias;
 
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
 
 public class PreferenciasDao {
 
@@ -40,7 +37,7 @@ public class PreferenciasDao {
                     notificacionesDao.insert(pref.getNotificaciones());
                 }
 
-                return getByStudentId(studentId); // return fully reloaded tree
+                return findById(studentId); // return fully reloaded tree
             }
 
         } catch (Exception e) { e.printStackTrace(); }
@@ -49,40 +46,40 @@ public class PreferenciasDao {
     }
 
     // UPDATE — actualiza preferencias, actividades y notificaciones
-    public Preferencias update(Preferencias pref) {
-        String sql = "UPDATE preferencias SET modalidad_estudio = ? WHERE id = ?";
-
-        try (Connection con = DatabaseConnection.getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
-
-            ps.setString(1, pref.getModalidadEstudio());
-            ps.setInt(2, pref.getId());
-
-            int rows = ps.executeUpdate();
-            if (rows > 0) {
-
-                // Replace activities
-                actividadesDao.delete(pref.getId());
-                if (pref.getActividadesExtracurriculares() != null) {
-                    actividadesDao.insert(pref.getId(), pref.getActividadesExtracurriculares());
-                }
-
-                // Update notifications
-                if (pref.getNotificaciones() != null) {
-                    pref.getNotificaciones().setPreferenciasId(pref.getId());
-                    notificacionesDao.update(pref.getId(), pref.getNotificaciones());
-                }
-
-                return getByStudentId(pref.getStudentId());
-            }
-
-        } catch (Exception e) { e.printStackTrace(); }
-
-        return null;
-    }
+//    public Preferencias update(Preferencias pref) {
+//        String sql = "UPDATE preferencias SET modalidad_estudio = ? WHERE id = ?";
+//
+//        try (Connection con = DatabaseConnection.getConnection();
+//             PreparedStatement ps = con.prepareStatement(sql)) {
+//
+//            ps.setString(1, pref.getModalidadEstudio());
+//            ps.setInt(2, pref.getId());
+//
+//            int rows = ps.executeUpdate();
+//            if (rows > 0) {
+//
+//                // Replace activities
+//                actividadesDao.delete(pref.getId());
+//                if (pref.getActividadesExtracurriculares() != null) {
+//                    actividadesDao.insert(pref.getId(), pref.getActividadesExtracurriculares());
+//                }
+//
+//                // Update notifications
+//                if (pref.getNotificaciones() != null) {
+//                    pref.getNotificaciones().setPreferenciasId(pref.getId());
+//                    notificacionesDao.update(pref.getId(), pref.getNotificaciones());
+//                }
+//
+//                return findById(pref.getStudentId());
+//            }
+//
+//        } catch (Exception e) { e.printStackTrace(); }
+//
+//        return null;
+//    }
 
     // GET — obtener todo el árbol
-    public Preferencias getByStudentId(int studentId) {
+    public Preferencias findById(int studentId) {
         String sql = "SELECT * FROM preferencias WHERE student_id = ?";
 
         try (Connection con = DatabaseConnection.getConnection();
@@ -100,12 +97,12 @@ public class PreferenciasDao {
 
                 // load activities
                 pref.setActividadesExtracurriculares(
-                        actividadesDao.getByPreferenciasId(pref.getId())
+                        actividadesDao.findById(pref.getId())
                 );
 
                 // load notifications
                 pref.setNotificaciones(
-                        notificacionesDao.getByPreferenciasId(pref.getId())
+                        notificacionesDao.findById(pref.getId())
                 );
 
                 return pref;
@@ -117,7 +114,7 @@ public class PreferenciasDao {
     }
 
 
-    public Preferencias updateByStudentId(Preferencias pref) {
+    public Preferencias update(Preferencias pref) {
 
         String sqlUpdate = """
                 UPDATE preferencias 
@@ -145,7 +142,7 @@ public class PreferenciasDao {
             // Actualizar notificaciones
             notificacionesDao.update(prefId, pref.getNotificaciones());
 
-            return getByStudentId(pref.getStudentId());
+            return findById(pref.getStudentId());
 
         } catch (Exception e) {
             e.printStackTrace();

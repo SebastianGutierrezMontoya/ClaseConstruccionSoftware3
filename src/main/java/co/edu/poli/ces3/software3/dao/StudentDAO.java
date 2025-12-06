@@ -1,7 +1,7 @@
 package co.edu.poli.ces3.software3.dao;
 
 import co.edu.poli.ces3.software3.config.DatabaseConnection;
-import co.edu.poli.ces3.software3.model.Student;
+import co.edu.poli.ces3.software3.model.*;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -129,5 +129,50 @@ public class StudentDAO {
             e.printStackTrace();
             return false;
         }
+    }
+
+
+
+    public StudentFull getFull(int studentId) throws SQLException {
+
+        StudentFull full = new StudentFull();
+
+        // 1. Obtener datos base del estudiante
+        Student student = findById(studentId);
+        if (student == null) {
+            return null;
+        }
+        full.setStudent(student);
+
+        // 2. Obtener datos académicos
+        AcademicoDAO academicoDAO = new AcademicoDAO();
+        Academico academico = academicoDAO.findById(studentId);
+        full.setAcademico(academico);
+
+        // 3. Obtener las materias del académico
+        if (academico != null) {
+            DetalleMateriasDao dmDAO = new DetalleMateriasDao();
+            List<DetalleMateria> materias = dmDAO.findById(academico.getId());
+            full.setMaterias(materias);
+        }
+
+        // 4. Obtener preferencias
+        PreferenciasDao prefDAO = new PreferenciasDao();
+        Preferencias pref = prefDAO.findById(studentId);
+        full.setPreferencias(pref);
+
+        // 5. Obtener actividades extracurriculares
+        if (pref != null) {
+            ActividadesExtracurricularesDao actDAO = new ActividadesExtracurricularesDao();
+            List<String> actividades = actDAO.findById(pref.getId());
+            full.setActividadesExtracurriculares(actividades);
+
+            // 6. Obtener notificaciones
+            NotificacionesDao notDAO = new NotificacionesDao();
+            Notificaciones notif = notDAO.findById(pref.getId());
+            full.setNotificaciones(notif);
+        }
+
+        return full;
     }
 }

@@ -24,7 +24,7 @@ public class ActividadesExtracurricularesDao {
         }
     }
 
-    public List<String> getByPreferenciasId(int prefId) throws SQLException {
+    public List<String> findById(int prefId) throws SQLException {
         String sql = "SELECT actividad FROM actividades_extracurriculares WHERE preferencias_id = ?";
         List<String> list = new ArrayList<>();
 
@@ -53,13 +53,5 @@ public class ActividadesExtracurricularesDao {
         }
     }
 
-    private void deleteActividades(int prefId) throws SQLException {
-        try (Connection con = DatabaseConnection.getConnection();
-             PreparedStatement ps = con.prepareStatement(
-                "DELETE FROM actividades_extracurriculares WHERE preferencias_id = ?")) {
-            ps.setInt(1, prefId);
-            ps.executeUpdate();
-        }
-    }
 
 }

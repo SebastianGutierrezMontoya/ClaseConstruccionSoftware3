@@ -31,7 +31,7 @@ public class NotificacionesDao {
 
 
 
-    public Notificaciones getByPreferenciasId(int prefId) throws SQLException {
+    public Notificaciones findById(int prefId) throws SQLException {
         String sql = "SELECT * FROM notificaciones WHERE preferencias_id = ?";
 
         try (Connection con = DatabaseConnection.getConnection();
