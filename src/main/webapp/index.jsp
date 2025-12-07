@@ -2,10 +2,10 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>JSP - Hello World</title>
+    <title>Api-urls</title>
 </head>
 <body>
-    <h1><%= "Hello World!" %></h1>
+    <h1>Api options</h1>
     <br/>
 <%--    <a href="hello-servlet">Hello Servlet</a>--%>
 
