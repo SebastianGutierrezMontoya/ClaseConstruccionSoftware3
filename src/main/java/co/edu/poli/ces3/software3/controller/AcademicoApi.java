@@ -5,6 +5,7 @@ import co.edu.poli.ces3.software3.model.Academico;
 
 import co.edu.poli.ces3.software3.model.DetalleMateria;
 import co.edu.poli.ces3.software3.model.Student;
+import co.edu.poli.ces3.software3.servlet.PatchServlet;
 import com.google.gson.*;
 import jakarta.servlet.http.*;
 import jakarta.servlet.annotation.*;
@@ -15,7 +16,7 @@ import java.io.PrintWriter;
 import java.util.List;
 
 @WebServlet(name="AcademicoApi",value="/api/academico")
-public class AcademicoApi extends HttpServlet {
+public class AcademicoApi extends PatchServlet {
 
     private AcademicoDAO dao = new AcademicoDAO();
     private Gson gson = new GsonBuilder().setPrettyPrinting().create();
@@ -73,7 +74,7 @@ public class AcademicoApi extends HttpServlet {
 
         Academico a = gson.fromJson(body, Academico.class);
 
-        Academico inserted = dao.update(a);
+        Academico inserted = dao.update(null, a);
 
         if (inserted == null) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -100,5 +101,10 @@ public class AcademicoApi extends HttpServlet {
         }
 
         response.getWriter().write(json.toString());
+    }
+
+    @Override
+    protected void doPatch(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+
     }
 }

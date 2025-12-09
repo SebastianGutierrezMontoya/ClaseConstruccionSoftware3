@@ -1,21 +1,25 @@
 package co.edu.poli.ces3.software3.dao;
 
 import co.edu.poli.ces3.software3.config.DatabaseConnection;
+import co.edu.poli.ces3.software3.model.Notificaciones;
 import co.edu.poli.ces3.software3.model.Preferencias;
 
 import java.sql.*;
+import java.util.List;
 
-public class PreferenciasDao {
+public class PreferenciasDao extends DatabaseConnection implements CRUD<Preferencias, Integer> {
 
     private ActividadesExtracurricularesDao actividadesDao = new ActividadesExtracurricularesDao();
     private NotificacionesDao notificacionesDao = new NotificacionesDao();
 
-    // INSERT — crea todo el árbol completo
-    public Preferencias insert(int studentId, Preferencias pref) {
-        String sql = "INSERT INTO preferencias (student_id, modalidad_estudio) VALUES (?, ?) RETURNING id";
 
-        try (Connection con = DatabaseConnection.getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
+    // INSERT — crea todo el árbol completo
+    @Override
+    public Preferencias insert(Integer studentId, Preferencias pref) {
+        String sql = "INSERT INTO preferencias (student_id, modalidad_estudio) VALUES (?, ?) RETURNING id";
+        Connection conn = super.getConnection();
+        try (
+             PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setInt(1, studentId);
             ps.setString(2, pref.getModalidadEstudio());
@@ -34,56 +38,28 @@ public class PreferenciasDao {
                 // Insert notifications
                 if (pref.getNotificaciones() != null) {
                     pref.getNotificaciones().setPreferenciasId(prefId);
-                    notificacionesDao.insert(pref.getNotificaciones());
+                    Notificaciones nof = notificacionesDao.insert(null,pref.getNotificaciones());
                 }
 
                 return findById(studentId); // return fully reloaded tree
             }
 
         } catch (Exception e) { e.printStackTrace(); }
+    finally {
+        super.closeConnection(conn);
+    }
 
         return null;
     }
 
-    // UPDATE — actualiza preferencias, actividades y notificaciones
-//    public Preferencias update(Preferencias pref) {
-//        String sql = "UPDATE preferencias SET modalidad_estudio = ? WHERE id = ?";
-//
-//        try (Connection con = DatabaseConnection.getConnection();
-//             PreparedStatement ps = con.prepareStatement(sql)) {
-//
-//            ps.setString(1, pref.getModalidadEstudio());
-//            ps.setInt(2, pref.getId());
-//
-//            int rows = ps.executeUpdate();
-//            if (rows > 0) {
-//
-//                // Replace activities
-//                actividadesDao.delete(pref.getId());
-//                if (pref.getActividadesExtracurriculares() != null) {
-//                    actividadesDao.insert(pref.getId(), pref.getActividadesExtracurriculares());
-//                }
-//
-//                // Update notifications
-//                if (pref.getNotificaciones() != null) {
-//                    pref.getNotificaciones().setPreferenciasId(pref.getId());
-//                    notificacionesDao.update(pref.getId(), pref.getNotificaciones());
-//                }
-//
-//                return findById(pref.getStudentId());
-//            }
-//
-//        } catch (Exception e) { e.printStackTrace(); }
-//
-//        return null;
-//    }
 
     // GET — obtener todo el árbol
-    public Preferencias findById(int studentId) {
+    @Override
+    public Preferencias findById(Integer studentId) {
         String sql = "SELECT * FROM preferencias WHERE student_id = ?";
-
-        try (Connection con = DatabaseConnection.getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
+        Connection conn = super.getConnection();
+        try (
+             PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setInt(1, studentId);
 
@@ -109,12 +85,15 @@ public class PreferenciasDao {
             }
 
         } catch (Exception e) { e.printStackTrace(); }
+        finally {
+            super.closeConnection(conn);
+        }
 
         return null;
     }
 
-
-    public Preferencias update(Preferencias pref) {
+    @Override
+    public Preferencias update(Integer none, Preferencias pref) {
 
         String sqlUpdate = """
                 UPDATE preferencias 
@@ -123,8 +102,10 @@ public class PreferenciasDao {
                 RETURNING id
                 """;
 
-        try (Connection con = DatabaseConnection.getConnection();
-             PreparedStatement ps = con.prepareStatement(sqlUpdate)) {
+        Connection conn = super.getConnection();
+
+        try (
+             PreparedStatement ps = conn.prepareStatement(sqlUpdate)) {
 
             ps.setString(1, pref.getModalidadEstudio());
             ps.setInt(2, pref.getStudentId());
@@ -136,7 +117,7 @@ public class PreferenciasDao {
             pref.setId(prefId);
 
             // Eliminar actividades actuales y reemplazar
-            actividadesDao.delete(prefId);
+            actividadesDao.delete(prefId, null);
             actividadesDao.insert(prefId, pref.getActividadesExtracurriculares());
 
             // Actualizar notificaciones
@@ -147,7 +128,19 @@ public class PreferenciasDao {
         } catch (Exception e) {
             e.printStackTrace();
             return null;
-        }
+        }finally {
+            super.closeConnection(conn);
+    }
+    }
+
+    @Override
+    public boolean delete(Integer integer) {
+        return false;
+    }
+
+    @Override
+    public List<Preferencias> findAll() {
+        return List.of();
     }
 
 }

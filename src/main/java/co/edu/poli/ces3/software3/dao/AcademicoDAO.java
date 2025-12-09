@@ -7,15 +7,17 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AcademicoDAO {
+public class AcademicoDAO extends DatabaseConnection implements CRUD<Academico, Integer> {
+
 
     // INSERT
-    public Academico insert(int studentId, Academico a) {
+    @Override
+    public Academico insert(Integer studentId, Academico a) {
         String sql = "INSERT INTO academico (student_id, programa, semestre_actual, promedio_acumulado) " +
                 "VALUES (?, ?, ?, ?) RETURNING id";
-
-        try (Connection con = DatabaseConnection.getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
+        Connection conn = super.getConnection();
+        try (
+             PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, studentId);
             ps.setString(2, a.getPrograma());
             ps.setInt(3, a.getSemestreActual());
@@ -29,16 +31,19 @@ public class AcademicoDAO {
             }
         } catch (SQLException ex) {
             ex.printStackTrace();
+        }finally {
+            super.closeConnection(conn);
         }
         return null;
     }
 
     // UPDATE
-    public Academico update(Academico a) {
+    @Override
+    public Academico update(Integer none, Academico a) {
         String sql = "UPDATE academico SET programa=?, semestre_actual=?, promedio_acumulado=? WHERE id=?";
-
-        try (Connection con = DatabaseConnection.getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
+        Connection conn = super.getConnection();
+        try (
+             PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, a.getPrograma());
             ps.setInt(2, a.getSemestreActual());
             ps.setDouble(3, a.getPromedioAcumulado());
@@ -50,16 +55,19 @@ public class AcademicoDAO {
             }
         } catch (SQLException ex) {
             ex.printStackTrace();
+        }finally {
+            super.closeConnection(conn);
         }
         return null;
     }
 
     // SELECT BY ID
-    public Academico findById(int id) {
+    @Override
+    public Academico findById(Integer id) {
         String sql = "SELECT * FROM academico WHERE id = ?";
         Academico a = null;
-
-        try (Connection conn = DatabaseConnection.getConnection();
+        Connection conn = super.getConnection();
+        try (
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setInt(1, id);
@@ -76,17 +84,20 @@ public class AcademicoDAO {
 
         } catch (Exception e) {
             e.printStackTrace();
+        }finally {
+            super.closeConnection(conn);
         }
 
         return a;
     }
 
     // SELECT ALL
+    @Override
     public List<Academico> findAll() {
         List<Academico> list = new ArrayList<>();
         String sql = "SELECT * FROM academico";
-
-        try (Connection conn = DatabaseConnection.getConnection();
+        Connection conn = super.getConnection();
+        try (
              PreparedStatement stmt = conn.prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
 
@@ -102,6 +113,8 @@ public class AcademicoDAO {
 
         } catch (Exception e) {
             e.printStackTrace();
+        }finally {
+            super.closeConnection(conn);
         }
 
         return list;
@@ -110,10 +123,11 @@ public class AcademicoDAO {
 
 
     // DELETE
-    public boolean delete(int id) {
+    @Override
+    public boolean delete(Integer id) {
         String sql = "DELETE FROM academico WHERE id=?";
-
-        try (Connection conn = DatabaseConnection.getConnection();
+        Connection conn = super.getConnection();
+        try (
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setInt(1, id);
@@ -122,6 +136,11 @@ public class AcademicoDAO {
         } catch (Exception e) {
             e.printStackTrace();
             return false;
+        }finally {
+            super.closeConnection(conn);
         }
     }
+
+
+
 }

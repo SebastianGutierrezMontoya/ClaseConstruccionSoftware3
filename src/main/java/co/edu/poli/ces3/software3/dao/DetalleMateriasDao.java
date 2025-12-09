@@ -1,23 +1,24 @@
 package co.edu.poli.ces3.software3.dao;
 
 import co.edu.poli.ces3.software3.config.DatabaseConnection;
-import co.edu.poli.ces3.software3.controller.DetalleMateriasApi;
+
 import co.edu.poli.ces3.software3.model.DetalleMateria;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DetalleMateriasDao {
+public class DetalleMateriasDao extends DatabaseConnection implements CRUD2<DetalleMateria, Integer>{
 
     // Obtener lista de detalles por id_academico
-    public List<DetalleMateria> findById(int idAcademico) {
+    @Override
+    public List<DetalleMateria> findById(Integer idAcademico, DetalleMateria none) {
         List<DetalleMateria> lista = new ArrayList<>();
 
         String sql = "SELECT * FROM detalle_materia WHERE academico_id = ?";
-
-        try (Connection con = DatabaseConnection.getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
+        Connection conn = super.getConnection();
+        try (
+             PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setInt(1, idAcademico);
             ResultSet rs = ps.executeQuery();
@@ -35,18 +36,21 @@ public class DetalleMateriasDao {
 
         } catch (Exception e) {
             e.printStackTrace();
+        }finally {
+            super.closeConnection(conn);
         }
 
         return lista;
     }
 
     // Insertar un detalle
-    public DetalleMateria insert(int idAcademico, DetalleMateria dm) {
+    @Override
+    public DetalleMateria insert(Integer idAcademico, DetalleMateria dm) {
         String sql = "INSERT INTO detalle_materia (academico_id, nombre, creditos, docente, estado) " +
                 "VALUES (?, ?, ?, ?, ?) RETURNING id";
-
-        try (Connection con = DatabaseConnection.getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
+        Connection conn = super.getConnection();
+        try (
+             PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setInt(1, idAcademico);
             ps.setString(2, dm.getNombre());
@@ -63,17 +67,25 @@ public class DetalleMateriasDao {
 
         } catch (SQLException ex) {
             ex.printStackTrace();
+        }finally {
+            super.closeConnection(conn);
         }
         return null;
     }
 
+    @Override
+    public void insert(Integer integer, List<String> t) {
+
+    }
+
     // UPDATE → retorna DetalleMateria actualizado o null
-    public DetalleMateria update(int idAcademico, DetalleMateria dm) {
+    @Override
+    public DetalleMateria update(Integer idAcademico, DetalleMateria dm) {
         String sql = "UPDATE detalle_materia SET creditos=?, docente=?, estado=?, nombre=? " +
                 "WHERE academico_id=? AND id=?";
-
-        try (Connection con = DatabaseConnection.getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
+        Connection conn = super.getConnection();
+        try (
+             PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setInt(1, dm.getCreditos());
             ps.setString(2, dm.getDocente());
@@ -91,16 +103,19 @@ public class DetalleMateriasDao {
 
         } catch (SQLException ex) {
             ex.printStackTrace();
+        }finally {
+            super.closeConnection(conn);
         }
         return null;
     }
 
     // Eliminar un detalle por nombre
-    public boolean delete(int idAcademico, int id) {
+    @Override
+    public boolean delete(Integer idAcademico, Integer id) {
         String sql = "DELETE FROM detalle_materia WHERE academico_id = ? AND id = ?";
-
-        try (Connection con = DatabaseConnection.getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
+        Connection conn = super.getConnection();
+        try (
+             PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setInt(1, idAcademico);
             ps.setInt(2, id);
@@ -109,8 +124,20 @@ public class DetalleMateriasDao {
 
         } catch (Exception e) {
             e.printStackTrace();
+        }finally {
+            super.closeConnection(conn);
         }
 
         return false;
+    }
+
+    @Override
+    public List<DetalleMateria> findAll() {
+        return List.of();
+    }
+
+    @Override
+    public List<String> findById(Integer integer) {
+        return List.of();
     }
 }

@@ -7,15 +7,16 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class StudentDAO {
+public class StudentDAO extends DatabaseConnection implements CRUD<Student, Integer> {
 
     // INSERT
-    public Student insert(Student s) {
+    @Override
+    public Student insert(Integer none, Student s) {
         String sql = "INSERT INTO student (nombre_completo, edad, correo, telefono, ciudad_residencia) " +
                 "VALUES (?, ?, ?, ?, ?) RETURNING id";
-
-        try (Connection con = DatabaseConnection.getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
+        Connection conn = super.getConnection();
+        try (
+             PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, s.getNombreCompleto());
             ps.setInt(2, s.getEdad());
@@ -31,17 +32,21 @@ public class StudentDAO {
             }
         } catch (SQLException ex) {
             ex.printStackTrace();
+        }finally {
+            super.closeConnection(conn);
         }
         return null;
     }
 
+
     // UPDATE → retorna Student actualizado o null si fallo
-    public Student update(Student s) {
+    @Override
+    public Student update(Integer none,Student s) {
         String sql = "UPDATE student SET nombre_completo=?, edad=?, correo=?, telefono=?, ciudad_residencia=? " +
                 "WHERE id=?";
-
-        try (Connection con = DatabaseConnection.getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
+        Connection conn = super.getConnection();
+        try (
+                PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, s.getNombreCompleto());
             ps.setInt(2, s.getEdad());
@@ -56,16 +61,20 @@ public class StudentDAO {
             }
         } catch (SQLException ex) {
             ex.printStackTrace();
+        } finally {
+            super.closeConnection(conn);
         }
         return null;
     }
 
+
     // SELECT BY ID
-    public Student findById(int id) {
+    @Override
+    public Student findById(Integer id) {
         String sql = "SELECT * FROM student WHERE id = ?";
         Student s = null;
-
-        try (Connection conn = DatabaseConnection.getConnection();
+        Connection conn = super.getConnection();
+        try (
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setInt(1, id);
@@ -82,17 +91,21 @@ public class StudentDAO {
             }
         } catch (Exception e) {
             e.printStackTrace();
+        }finally {
+            super.closeConnection(conn);
         }
 
         return s;
     }
 
     // SELECT ALL
+    @Override
     public List<Student> findAll() {
         List<Student> list = new ArrayList<>();
         String sql = "SELECT * FROM student";
 
-        try (Connection conn = DatabaseConnection.getConnection();
+        Connection conn = super.getConnection();
+        try (
              PreparedStatement stmt = conn.prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
 
@@ -109,6 +122,8 @@ public class StudentDAO {
 
         } catch (Exception e) {
             e.printStackTrace();
+        }finally {
+            super.closeConnection(conn);
         }
 
         return list;
@@ -116,10 +131,12 @@ public class StudentDAO {
 
 
     // DELETE
-    public boolean delete(int id) {
+    @Override
+    public boolean delete(Integer id) {
         String sql = "DELETE FROM student WHERE id=?";
 
-        try (Connection conn = DatabaseConnection.getConnection();
+        Connection conn = super.getConnection();
+        try (
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setInt(1, id);
@@ -128,6 +145,8 @@ public class StudentDAO {
         } catch (Exception e) {
             e.printStackTrace();
             return false;
+        }finally {
+            super.closeConnection(conn);
         }
     }
 
@@ -152,7 +171,7 @@ public class StudentDAO {
         // 3. Obtener las materias del académico
         if (academico != null) {
             DetalleMateriasDao dmDAO = new DetalleMateriasDao();
-            List<DetalleMateria> materias = dmDAO.findById(academico.getId());
+            List<DetalleMateria> materias = dmDAO.findById(academico.getId(), null);
             full.setMaterias(materias);
         }
 

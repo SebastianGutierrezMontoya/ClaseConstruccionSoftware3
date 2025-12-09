@@ -4,6 +4,7 @@ import co.edu.poli.ces3.software3.dao.PreferenciasDao;
 import co.edu.poli.ces3.software3.model.Notificaciones;
 import co.edu.poli.ces3.software3.model.Preferencias;
 
+import co.edu.poli.ces3.software3.servlet.PatchServlet;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
@@ -21,7 +22,7 @@ import java.lang.reflect.Type;
 import java.util.List;
 
 @WebServlet(name = "PreferenciasApi", value = "/api/preferencias")
-public class PreferenciasApi extends HttpServlet {
+public class PreferenciasApi extends PatchServlet {
 
     private PreferenciasDao preferenciasDAO = new PreferenciasDao();
     private Gson gson = new Gson();
@@ -152,7 +153,7 @@ public class PreferenciasApi extends HttpServlet {
             pref.setActividadesExtracurriculares(actividades);
             pref.setNotificaciones(notif);
 
-            Preferencias actualizado = preferenciasDAO.update(pref);
+            Preferencias actualizado = preferenciasDAO.update(null, pref);
 
             if (actualizado == null) {
                 resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -171,7 +172,10 @@ public class PreferenciasApi extends HttpServlet {
     }
 
 
+    @Override
+    protected void doPatch(HttpServletRequest req, HttpServletResponse resp) throws IOException {
 
+    }
 
 
 }

@@ -4,6 +4,7 @@ import co.edu.poli.ces3.software3.dao.StudentDAO;
 import co.edu.poli.ces3.software3.model.DetalleMateria;
 import co.edu.poli.ces3.software3.model.Student;
 import co.edu.poli.ces3.software3.model.StudentFull;
+import co.edu.poli.ces3.software3.servlet.PatchServlet;
 import com.google.gson.*;
 
 import jakarta.servlet.http.*;
@@ -16,7 +17,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 @WebServlet(name="StudentApi", value="/api/student")
-public class StudentApi extends HttpServlet {
+public class StudentApi extends PatchServlet {
 
     private StudentDAO dao = new StudentDAO();
     private Gson gson = new GsonBuilder().setPrettyPrinting().create();
@@ -61,7 +62,7 @@ public class StudentApi extends HttpServlet {
 
         Student s = gson.fromJson(body, Student.class);
 
-        Student inserted = dao.insert(s);
+        Student inserted = dao.insert(null, s);
 
         if (inserted == null) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -83,7 +84,7 @@ public class StudentApi extends HttpServlet {
 
         Student s = gson.fromJson(body, Student.class);
 
-        Student inserted = dao.update(s);
+        Student inserted = dao.update(null,s);
 
         if (inserted == null) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -110,5 +111,11 @@ public class StudentApi extends HttpServlet {
         }
 
         response.getWriter().write(json.toString());
+    }
+
+
+    @Override
+    protected void doPatch(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+
     }
 }

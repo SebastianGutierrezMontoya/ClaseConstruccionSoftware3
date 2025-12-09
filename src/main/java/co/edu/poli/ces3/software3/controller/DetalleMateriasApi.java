@@ -2,6 +2,7 @@ package co.edu.poli.ces3.software3.controller;
 
 import co.edu.poli.ces3.software3.dao.DetalleMateriasDao;
 import co.edu.poli.ces3.software3.model.DetalleMateria;
+import co.edu.poli.ces3.software3.servlet.PatchServlet;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import jakarta.servlet.ServletException;
@@ -14,7 +15,7 @@ import java.io.PrintWriter;
 import java.util.List;
 
 @WebServlet(name = "DetalleMateriasApi", value = "/api/detallematerias")
-public class DetalleMateriasApi extends HttpServlet {
+public class DetalleMateriasApi extends PatchServlet {
 
     private DetalleMateriasDao dao = new DetalleMateriasDao();
     private Gson gson = new Gson();
@@ -26,7 +27,7 @@ public class DetalleMateriasApi extends HttpServlet {
 
         int idAcademico = Integer.parseInt(req.getParameter("idAcademico"));
 
-        List<DetalleMateria> detalles = dao.findById(idAcademico);
+        List<DetalleMateria> detalles = dao.findById(idAcademico, null);
 
         resp.getWriter().print(gson.toJson(detalles));
     }
@@ -92,5 +93,12 @@ public class DetalleMateriasApi extends HttpServlet {
         json.addProperty("success", ok);
 
         resp.getWriter().print(json.toString());
+    }
+
+
+
+    @Override
+    protected void doPatch(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+
     }
 }
