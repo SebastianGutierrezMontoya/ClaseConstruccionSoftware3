@@ -12,7 +12,7 @@ public class DetalleMateriasDao extends DatabaseConnection implements CRUD2<Deta
 
     // Obtener lista de detalles por id_academico
     @Override
-    public List<DetalleMateria> findById(Integer idAcademico, DetalleMateria none) {
+    public List<DetalleMateria> findAll(Integer idAcademico) {
         List<DetalleMateria> lista = new ArrayList<>();
 
         String sql = "SELECT * FROM detalle_materia WHERE academico_id = ?";
@@ -74,7 +74,7 @@ public class DetalleMateriasDao extends DatabaseConnection implements CRUD2<Deta
     }
 
     @Override
-    public void insert(Integer integer, List<String> t) {
+    public void insert(Integer integer, List<DetalleMateria> t) {
 
     }
 
@@ -132,12 +132,34 @@ public class DetalleMateriasDao extends DatabaseConnection implements CRUD2<Deta
     }
 
     @Override
-    public List<DetalleMateria> findAll() {
+    public List<DetalleMateria> findById(Integer none) {
         return List.of();
     }
 
     @Override
-    public List<String> findById(Integer integer) {
-        return List.of();
+    public boolean updatePartial(DetalleMateria d) {
+
+        String sql = "UPDATE detalle_materia SET academico_id = ?, nombre = ?, creditos = ?, docente = ?, estado = ? WHERE id = ?";
+
+        Connection conn = super.getConnection();
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, d.getAcademicoId());
+            ps.setString(2, d.getNombre());
+            ps.setInt(3, d.getCreditos());
+            ps.setString(4, d.getDocente());
+            ps.setString(5, d.getEstado());
+            ps.setInt(6, d.getId());
+
+            return ps.executeUpdate() > 0;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        } finally {
+            super.closeConnection(conn);
+        }
     }
+
+
 }

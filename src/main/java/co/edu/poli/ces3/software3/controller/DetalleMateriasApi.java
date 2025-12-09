@@ -5,6 +5,7 @@ import co.edu.poli.ces3.software3.model.DetalleMateria;
 import co.edu.poli.ces3.software3.servlet.PatchServlet;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
@@ -27,9 +28,29 @@ public class DetalleMateriasApi extends PatchServlet {
 
         int idAcademico = Integer.parseInt(req.getParameter("idAcademico"));
 
-        List<DetalleMateria> detalles = dao.findById(idAcademico, null);
 
-        resp.getWriter().print(gson.toJson(detalles));
+        List<DetalleMateria> detalles = dao.findAll(idAcademico);
+
+        DetalleMateria resultado = null;
+
+        if (req.getParameter("id") != null) {
+            Integer id = Integer.parseInt(req.getParameter("id"));
+            resultado = detalles.stream()
+                    .filter(d -> d.getId() == id)
+                    .findFirst()
+                    .orElse(null);
+
+            if (resultado != null) {
+                resp.getWriter().print(gson.toJson(resultado));
+            } else {
+                resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+                resp.getWriter().print("{\"error\": \"Detalle no encontrado\"}");
+            }
+        } else {
+            resp.getWriter().print(gson.toJson(detalles));
+        }
+
+
     }
 
     // POST → insertar detalle
@@ -100,5 +121,85 @@ public class DetalleMateriasApi extends PatchServlet {
     @Override
     protected void doPatch(HttpServletRequest req, HttpServletResponse resp) throws IOException {
 
+        resp.setContentType("application/json");
+
+        Gson gson = new Gson();
+
+        // ==============================
+        // 1. Leer JSON del body
+        // ==============================
+        StringBuilder sb = new StringBuilder();
+        String line;
+        while ((line = req.getReader().readLine()) != null) {
+            sb.append(line);
+        }
+        JsonObject json = JsonParser.parseString(sb.toString()).getAsJsonObject();
+
+        // ==============================
+        // 2. Obtener parámetros
+        // ==============================
+        if (req.getParameter("idAcademico") == null || req.getParameter("id") == null) {
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            resp.getWriter().write("{\"error\":\"Debe enviar idAcademico y id\"}");
+            return;
+        }
+
+        int idAcademico = Integer.parseInt(req.getParameter("idAcademico"));
+        int idDetalle = Integer.parseInt(req.getParameter("id"));
+
+        // ==============================
+        // 3. Buscar el detalle dentro de findAll(idAcademico)
+        // ==============================
+        List<DetalleMateria> lista = dao.findAll(idAcademico);
+
+        DetalleMateria actual = lista.stream()
+                .filter(x -> x.getId() == idDetalle)
+                .findFirst()
+                .orElse(null);
+
+        if (actual == null) {
+            resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            resp.getWriter().write("{\"error\":\"DetalleMateria no encontrado\"}");
+            return;
+        }
+
+        // ==============================
+        // 4. Actualizar solo los campos enviados
+        // ==============================
+        if (json.has("academicoId") && !json.get("academicoId").isJsonNull()) {
+            actual.setAcademicoId(json.get("academicoId").getAsInt());
+        }
+
+        if (json.has("nombre") && !json.get("nombre").isJsonNull()) {
+            actual.setNombre(json.get("nombre").getAsString());
+        }
+
+        if (json.has("creditos") && !json.get("creditos").isJsonNull()) {
+            actual.setCreditos(json.get("creditos").getAsInt());
+        }
+
+        if (json.has("docente") && !json.get("docente").isJsonNull()) {
+            actual.setDocente(json.get("docente").getAsString());
+        }
+
+        if (json.has("estado") && !json.get("estado").isJsonNull()) {
+            actual.setEstado(json.get("estado").getAsString());
+        }
+
+        // ==============================
+        // 5. Guardar cambios en la BD
+        // ==============================
+        boolean ok = dao.updatePartial(actual);
+
+        if (!ok) {
+            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            resp.getWriter().write("{\"error\":\"No se pudo actualizar el registro\"}");
+            return;
+        }
+
+        // ==============================
+        // 6. Devolver modelo actualizado
+        // ==============================
+        resp.getWriter().write(gson.toJson(actual));
     }
 }

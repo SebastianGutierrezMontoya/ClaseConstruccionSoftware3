@@ -7,7 +7,7 @@ public class Preferencias {
     private int studentId;
     private String modalidadEstudio;
 
-    private List<String> actividadesExtracurriculares;
+    private List<Actividades> actividadesExtracurriculares;
     private Notificaciones notificaciones;
 
     public int getId() { return id; }
@@ -19,8 +19,8 @@ public class Preferencias {
     public String getModalidadEstudio() { return modalidadEstudio; }
     public void setModalidadEstudio(String modalidadEstudio) { this.modalidadEstudio = modalidadEstudio; }
 
-    public List<String> getActividadesExtracurriculares() { return actividadesExtracurriculares; }
-    public void setActividadesExtracurriculares(List<String> actividadesExtracurriculares) {
+    public List<Actividades> getActividadesExtracurriculares() { return actividadesExtracurriculares; }
+    public void setActividadesExtracurriculares(List<Actividades> actividadesExtracurriculares) {
         this.actividadesExtracurriculares = actividadesExtracurriculares;
     }
 

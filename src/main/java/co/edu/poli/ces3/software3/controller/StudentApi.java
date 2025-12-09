@@ -115,7 +115,60 @@ public class StudentApi extends PatchServlet {
 
 
     @Override
-    protected void doPatch(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+    protected void doPatch(HttpServletRequest request, HttpServletResponse response) throws IOException {
+
+        response.setContentType("application/json");
+        Gson gson = new Gson();
+
+        // === 1. Leer JSON del body ===
+        StringBuilder sb = new StringBuilder();
+        String line;
+        while ((line = request.getReader().readLine()) != null) {
+            sb.append(line);
+        }
+
+        JsonObject json = JsonParser.parseString(sb.toString()).getAsJsonObject();
+
+        // === 2. Obtener ID desde query param o ruta ===
+        int id = Integer.parseInt(request.getParameter("id"));
+
+        // === 3. Obtener el estudiante actual ===
+        Student current = dao.findById(id);
+        if (current == null) {
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            response.getWriter().write("{\"error\":\"Estudiante no encontrado\"}");
+            return;
+        }
+
+        // === 4. Actualizar SOLO los campos enviados ===
+        if (json.has("nombreCompleto") && !json.get("nombreCompleto").isJsonNull()) {
+            current.setNombreCompleto(json.get("nombreCompleto").getAsString());
+        }
+        if (json.has("edad") && !json.get("edad").isJsonNull()) {
+            current.setEdad(json.get("edad").getAsInt());
+        }
+        if (json.has("correo") && !json.get("correo").isJsonNull()) {
+            current.setCorreo(json.get("correo").getAsString());
+        }
+        if (json.has("telefono") && !json.get("telefono").isJsonNull()) {
+            current.setTelefono(json.get("telefono").getAsString());
+        }
+        if (json.has("ciudadResidencia") && !json.get("ciudadResidencia").isJsonNull()) {
+            current.setCiudadResidencia(json.get("ciudadResidencia").getAsString());
+        }
+
+        // === 5. Actualizar en BD ===
+        boolean updated = dao.updatePartial(current);
+
+        if (!updated) {
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            response.getWriter().write("{\"error\":\"No se pudo actualizar el estudiante\"}");
+            return;
+        }
+
+        // === 6. RETORNAR el modelo actualizado ===
+        String jsonResponse = gson.toJson(current);
+        response.getWriter().write(jsonResponse);
 
     }
 }

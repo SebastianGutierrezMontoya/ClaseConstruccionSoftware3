@@ -93,6 +93,30 @@ public class PreferenciasDao extends DatabaseConnection implements CRUD<Preferen
     }
 
     @Override
+    public boolean updatePartial(Preferencias pref) {
+        String sql = "UPDATE preferencias SET "
+                + "modalidad_estudio = COALESCE(?, modalidad_estudio) "
+                + "WHERE student_id = ?";
+        Connection conn = super.getConnection();
+        try (
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            // Campo parcial
+            stmt.setString(1, pref.getModalidadEstudio());
+            stmt.setInt(2, pref.getStudentId());
+
+            int rows = stmt.executeUpdate();
+            return rows > 0;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }finally {
+            super.closeConnection(conn);
+        }
+    }
+
+    @Override
     public Preferencias update(Integer none, Preferencias pref) {
 
         String sqlUpdate = """

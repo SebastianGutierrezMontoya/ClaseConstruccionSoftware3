@@ -8,28 +8,50 @@ public class StudentFull {
     private Academico academico;
     private List<DetalleMateria> materias;
     private Preferencias preferencias;
-    private List<String> actividadesExtracurriculares;
+    private List<Actividades> actividadesExtracurriculares;
     private Notificaciones notificaciones;
 
     public StudentFull() {}
 
-    public Student getStudent() { return student; }
-    public void setStudent(Student student) { this.student = student; }
+    public Student getStudent() {
+        return student;
+    }
+    public void setStudent(Student student) {
+        this.student = student;
+    }
 
-    public Academico getAcademico() { return academico; }
-    public void setAcademico(Academico academico) { this.academico = academico; }
+    public Academico getAcademico() {
+        return academico;
+    }
+    public void setAcademico(Academico academico) {
+        this.academico = academico;
+    }
 
-    public List<DetalleMateria> getMaterias() { return materias; }
-    public void setMaterias(List<DetalleMateria> materias) { this.materias = materias; }
+    public List<DetalleMateria> getMaterias() {
+        return materias;
+    }
+    public void setMaterias(List<DetalleMateria> materias) {
+        this.materias = materias;
+    }
 
-    public Preferencias getPreferencias() { return preferencias; }
-    public void setPreferencias(Preferencias preferencias) { this.preferencias = preferencias; }
+    public Preferencias getPreferencias() {
+        return preferencias;
+    }
+    public void setPreferencias(Preferencias preferencias) {
+        this.preferencias = preferencias;
+    }
 
-    public List<String> getActividadesExtracurriculares() { return actividadesExtracurriculares; }
-    public void setActividadesExtracurriculares(List<String> actividadesExtracurriculares) {
+    public List<Actividades> getActividadesExtracurriculares() {
+        return actividadesExtracurriculares;
+    }
+    public void setActividadesExtracurriculares(List<Actividades> actividadesExtracurriculares) {
         this.actividadesExtracurriculares = actividadesExtracurriculares;
     }
 
-    public Notificaciones getNotificaciones() { return notificaciones; }
-    public void setNotificaciones(Notificaciones notificaciones) { this.notificaciones = notificaciones; }
+    public Notificaciones getNotificaciones() {
+        return notificaciones;
+    }
+    public void setNotificaciones(Notificaciones notificaciones) {
+        this.notificaciones = notificaciones;
+    }
 }

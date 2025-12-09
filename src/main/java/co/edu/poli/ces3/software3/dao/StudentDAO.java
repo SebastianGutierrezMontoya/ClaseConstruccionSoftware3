@@ -171,7 +171,7 @@ public class StudentDAO extends DatabaseConnection implements CRUD<Student, Inte
         // 3. Obtener las materias del académico
         if (academico != null) {
             DetalleMateriasDao dmDAO = new DetalleMateriasDao();
-            List<DetalleMateria> materias = dmDAO.findById(academico.getId(), null);
+            List<DetalleMateria> materias = dmDAO.findAll(academico.getId());
             full.setMaterias(materias);
         }
 
@@ -183,7 +183,7 @@ public class StudentDAO extends DatabaseConnection implements CRUD<Student, Inte
         // 5. Obtener actividades extracurriculares
         if (pref != null) {
             ActividadesExtracurricularesDao actDAO = new ActividadesExtracurricularesDao();
-            List<String> actividades = actDAO.findById(pref.getId());
+            List<Actividades> actividades = actDAO.findById(pref.getId());
             full.setActividadesExtracurriculares(actividades);
 
             // 6. Obtener notificaciones
@@ -193,5 +193,31 @@ public class StudentDAO extends DatabaseConnection implements CRUD<Student, Inte
         }
 
         return full;
+    }
+
+
+
+    @Override
+    public boolean updatePartial(Student s) {
+        String sql = "UPDATE student SET nombre_completo=?, edad=?, correo=?, telefono=?, ciudad_residencia=? WHERE id=?";
+        Connection conn = super.getConnection();
+        try (
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, s.getNombreCompleto());
+            ps.setInt(2, s.getEdad());
+            ps.setString(3, s.getCorreo());
+            ps.setString(4, s.getTelefono());
+            ps.setString(5, s.getCiudadResidencia());
+            ps.setInt(6, s.getId());
+
+            return ps.executeUpdate() == 1;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }finally {
+            super.closeConnection(conn);
+        }
     }
 }

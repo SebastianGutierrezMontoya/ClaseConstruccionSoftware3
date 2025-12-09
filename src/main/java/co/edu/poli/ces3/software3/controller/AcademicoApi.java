@@ -104,7 +104,56 @@ public class AcademicoApi extends PatchServlet {
     }
 
     @Override
-    protected void doPatch(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+    protected void doPatch(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        response.setContentType("application/json");
+        Gson gson = new Gson();
 
+        // === 1. Leer JSON del body ===
+        StringBuilder sb = new StringBuilder();
+        String line;
+        while ((line = request.getReader().readLine()) != null) {
+            sb.append(line);
+        }
+
+        JsonObject json = JsonParser.parseString(sb.toString()).getAsJsonObject();
+
+        // === 2. Obtener ID desde query param ===
+        int id = Integer.parseInt(request.getParameter("id"));
+
+        // === 3. Obtener registro actual desde la BD ===
+        Academico current = dao.findById(id);
+        if (current == null) {
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            response.getWriter().write("{\"error\":\"Registro académico no encontrado\"}");
+            return;
+        }
+
+        // === 4. Actualizar SOLO los campos enviados ===
+        if (json.has("programa") && !json.get("programa").isJsonNull()) {
+            current.setPrograma(json.get("programa").getAsString());
+        }
+        if (json.has("semestreActual") && !json.get("semestreActual").isJsonNull()) {
+            current.setSemestreActual(json.get("semestreActual").getAsInt());
+        }
+        if (json.has("promedioAcumulado") && !json.get("promedioAcumulado").isJsonNull()) {
+            current.setPromedioAcumulado(json.get("promedioAcumulado").getAsDouble());
+        }
+        if (json.has("studentId") && !json.get("studentId").isJsonNull()) {
+            current.setStudentId(json.get("studentId").getAsInt());
+        }
+
+        // === 5. Persistir cambios ===
+        boolean updated = dao.updatePartial(current);
+
+        if (!updated) {
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            response.getWriter().write("{\"error\":\"No se pudo actualizar el registro académico\"}");
+            return;
+        }
+
+        // === 6. Devolver el modelo actualizado ===
+        String jsonResponse = gson.toJson(current);
+        response.getWriter().write(jsonResponse);
     }
+
 }

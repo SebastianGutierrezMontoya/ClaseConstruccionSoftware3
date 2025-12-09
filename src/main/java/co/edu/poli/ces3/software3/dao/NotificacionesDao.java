@@ -68,6 +68,11 @@ public class NotificacionesDao extends DatabaseConnection implements CRUD<Notifi
     }
 
     @Override
+    public boolean updatePartial(Notificaciones notificaciones) {
+        return false;
+    }
+
+    @Override
     public Notificaciones update(Integer prefId, Notificaciones n) {
 
         String sql = """

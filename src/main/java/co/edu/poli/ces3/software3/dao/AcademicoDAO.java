@@ -142,5 +142,26 @@ public class AcademicoDAO extends DatabaseConnection implements CRUD<Academico, 
     }
 
 
+    @Override
+    public boolean updatePartial(Academico a) {
+        String sql = "UPDATE academico SET programa = ?, semestre_actual = ?, promedio_acumulado = ?, student_id = ? WHERE id = ?";
 
+        Connection conn = super.getConnection();
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, a.getPrograma());
+            ps.setInt(2, a.getSemestreActual());
+            ps.setDouble(3, a.getPromedioAcumulado());
+            ps.setInt(4, a.getStudentId());
+            ps.setInt(5, a.getId());
+
+            return ps.executeUpdate() > 0;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        } finally {
+            super.closeConnection(conn);
+        }
+    }
 }
