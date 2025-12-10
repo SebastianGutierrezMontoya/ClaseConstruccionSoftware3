@@ -246,7 +246,7 @@ public class PreferenciasApi extends PatchServlet {
                 noti.setApp(jsonNotif.get("app").getAsBoolean());
             }
 
-            NotificacionDAO.update(null, noti);
+            NotificacionDAO.update(pref.getId(), noti);
             pref.setNotificaciones(noti);
         }
 
@@ -255,8 +255,6 @@ public class PreferenciasApi extends PatchServlet {
         // ==============================
         if (json.has("actividadesExtracurriculares") && json.get("actividadesExtracurriculares").isJsonArray()) {
 
-            // Eliminar todas las actividades previas
-            actividadesDAO.delete(pref.getId(), null);
 
             JsonArray array = json.get("actividadesExtracurriculares").getAsJsonArray();
             List<Actividades> nuevas = new ArrayList<>();
@@ -283,8 +281,8 @@ public class PreferenciasApi extends PatchServlet {
         // ==============================
         // 8. Recargar objeto completo actualizado
         // ==============================
-        Preferencias resultado = preferenciasDAO.findById(pref.getId());
-
+        Preferencias resultado = preferenciasDAO.findById(pref.getStudentId());
+        System.out.println("resultado: " + resultado);
         resp.getWriter().write(gson.toJson(resultado));
 
     }

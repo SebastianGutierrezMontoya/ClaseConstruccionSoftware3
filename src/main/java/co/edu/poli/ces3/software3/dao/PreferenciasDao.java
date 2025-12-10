@@ -80,7 +80,7 @@ public class PreferenciasDao extends DatabaseConnection implements CRUD<Preferen
                 pref.setNotificaciones(
                         notificacionesDao.findById(pref.getId())
                 );
-
+                System.out.println(pref.getModalidadEstudio());
                 return pref;
             }
 

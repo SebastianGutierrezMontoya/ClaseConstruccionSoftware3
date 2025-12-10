@@ -175,22 +175,22 @@ public class StudentDAO extends DatabaseConnection implements CRUD<Student, Inte
             full.setMaterias(materias);
         }
 
-        // 4. Obtener preferencias
+         //4. Obtener preferencias
         PreferenciasDao prefDAO = new PreferenciasDao();
         Preferencias pref = prefDAO.findById(studentId);
         full.setPreferencias(pref);
-
-        // 5. Obtener actividades extracurriculares
-        if (pref != null) {
-            ActividadesExtracurricularesDao actDAO = new ActividadesExtracurricularesDao();
-            List<Actividades> actividades = actDAO.findById(pref.getId());
-            full.setActividadesExtracurriculares(actividades);
-
-            // 6. Obtener notificaciones
-            NotificacionesDao notDAO = new NotificacionesDao();
-            Notificaciones notif = notDAO.findById(pref.getId());
-            full.setNotificaciones(notif);
-        }
+//
+//        // 5. Obtener actividades extracurriculares
+//        if (pref != null) {
+//            ActividadesExtracurricularesDao actDAO = new ActividadesExtracurricularesDao();
+//            List<Actividades> actividades = actDAO.findById(pref.getId());
+//            full.setActividadesExtracurriculares(actividades);
+//
+//            // 6. Obtener notificaciones
+//            NotificacionesDao notDAO = new NotificacionesDao();
+//            Notificaciones notif = notDAO.findById(pref.getId());
+//            full.setNotificaciones(notif);
+//        }
 
         return full;
     }

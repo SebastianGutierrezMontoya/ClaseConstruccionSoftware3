@@ -41,17 +41,17 @@ public class StudentFull {
         this.preferencias = preferencias;
     }
 
-    public List<Actividades> getActividadesExtracurriculares() {
-        return actividadesExtracurriculares;
-    }
-    public void setActividadesExtracurriculares(List<Actividades> actividadesExtracurriculares) {
-        this.actividadesExtracurriculares = actividadesExtracurriculares;
-    }
-
-    public Notificaciones getNotificaciones() {
-        return notificaciones;
-    }
-    public void setNotificaciones(Notificaciones notificaciones) {
-        this.notificaciones = notificaciones;
-    }
+//    public List<Actividades> getActividadesExtracurriculares() {
+//        return actividadesExtracurriculares;
+//    }
+//    public void setActividadesExtracurriculares(List<Actividades> actividadesExtracurriculares) {
+//        this.actividadesExtracurriculares = actividadesExtracurriculares;
+//    }
+//
+//    public Notificaciones getNotificaciones() {
+//        return notificaciones;
+//    }
+//    public void setNotificaciones(Notificaciones notificaciones) {
+//        this.notificaciones = notificaciones;
+//    }
 }

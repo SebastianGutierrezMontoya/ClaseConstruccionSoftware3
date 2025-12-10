@@ -23,7 +23,7 @@ public class ActividadesExtracurricularesDao extends DatabaseConnection implemen
                 ps.setString(2, actividades.getActividad());
 
 
-            ps.executeQuery();
+            ps.executeUpdate();
 
             return actividades;
 

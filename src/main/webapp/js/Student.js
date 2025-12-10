@@ -97,7 +97,7 @@ function renderTablas(data) {
             <ul>
                 ${
         actividades.length > 0
-            ? actividades.map(a => `<li>${a}</li>`).join("")
+            ? actividades.map(a => `<li>${a.actividad}</li>`).join("")
             : `<li>No registradas</li>`
     }
             </ul>
