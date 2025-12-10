@@ -91,6 +91,34 @@ public class AcademicoDAO extends DatabaseConnection implements CRUD<Academico, 
         return a;
     }
 
+    public Academico findByStudentId(Integer id) {
+        String sql = "SELECT * FROM academico WHERE student_id = ?";
+        Academico a = null;
+        Connection conn = super.getConnection();
+        try (
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, id);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                a = new Academico();
+                a.setId(rs.getInt("id"));
+                a.setStudentId(rs.getInt("student_id"));
+                a.setPrograma(rs.getString("programa"));
+                a.setSemestreActual(rs.getInt("semestre_actual"));
+                a.setPromedioAcumulado(rs.getDouble("promedio_acumulado"));
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }finally {
+            super.closeConnection(conn);
+        }
+
+        return a;
+    }
+
     // SELECT ALL
     @Override
     public List<Academico> findAll() {

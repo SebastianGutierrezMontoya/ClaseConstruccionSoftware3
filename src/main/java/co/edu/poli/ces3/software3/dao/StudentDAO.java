@@ -165,7 +165,7 @@ public class StudentDAO extends DatabaseConnection implements CRUD<Student, Inte
 
         // 2. Obtener datos académicos
         AcademicoDAO academicoDAO = new AcademicoDAO();
-        Academico academico = academicoDAO.findById(studentId);
+        Academico academico = academicoDAO.findByStudentId(studentId);
         full.setAcademico(academico);
 
         // 3. Obtener las materias del académico

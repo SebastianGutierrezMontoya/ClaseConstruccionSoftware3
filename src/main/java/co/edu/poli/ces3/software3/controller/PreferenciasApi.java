@@ -282,7 +282,7 @@ public class PreferenciasApi extends PatchServlet {
         // 8. Recargar objeto completo actualizado
         // ==============================
         Preferencias resultado = preferenciasDAO.findById(pref.getStudentId());
-        System.out.println("resultado: " + resultado);
+
         resp.getWriter().write(gson.toJson(resultado));
 
     }
